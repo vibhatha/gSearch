@@ -4,6 +4,8 @@ import Header from './components/Header.jsx';
 import LeftSidebar from './components/LeftSidebar.jsx';
 import GraphCanvas from './components/GraphCanvas.jsx';
 import RightPanel from './components/RightPanel.jsx';
+import DataViewer from './components/DataViewer.jsx';
+import ErrorBoundary from './components/ErrorBoundary.jsx';
 import AddNodeModal from './components/AddNodeModal.jsx';
 import AddLinkModal from './components/AddLinkModal.jsx';
 import './App.css';
@@ -24,6 +26,7 @@ function App() {
   const [nodeIdCounter, setNodeIdCounter] = useState(0);
   const [showAddNodeModal, setShowAddNodeModal] = useState(false);
   const [showAddLinkModal, setShowAddLinkModal] = useState(false);
+  const [nodeData, setNodeData] = useState({});
 
   // Load sample data on component mount
   useEffect(() => {
@@ -40,7 +43,13 @@ function App() {
       {id: 'ministry-defense', name: 'Ministry of Defense', type: 'organization', description: 'Defense oversight'},
       {id: 'dept-public-health', name: 'Public Health Dept', type: 'department', description: 'Public health services'},
       {id: 'dept-hospitals', name: 'Hospital Management', type: 'department', description: 'Hospital administration'},
-      {id: 'dept-schools', name: 'School Administration', type: 'department', description: 'School management'}
+      {id: 'dept-schools', name: 'School Administration', type: 'department', description: 'School management'},
+      // Attribute nodes
+      {id: 'president-profile', name: 'President Profile', type: 'document', description: 'Personal and professional profile'},
+      {id: 'health-budget', name: 'Health Budget', type: 'table', description: 'Annual health department budget'},
+      {id: 'education-stats', name: 'Education Statistics', type: 'table', description: 'School enrollment and performance data'},
+      {id: 'ministry-structure', name: 'Ministry Structure', type: 'document', description: 'Organizational structure document'},
+      {id: 'hospital-data', name: 'Hospital Data', type: 'table', description: 'Hospital capacity and patient statistics'}
     ];
     
     const sampleLinks = [
@@ -50,11 +59,123 @@ function App() {
       {source: 'president', target: 'ministry-defense', type: 'oversees'},
       {source: 'ministry-health', target: 'dept-public-health', type: 'manages'},
       {source: 'ministry-health', target: 'dept-hospitals', type: 'manages'},
-      {source: 'ministry-edu', target: 'dept-schools', type: 'manages'}
+      {source: 'ministry-edu', target: 'dept-schools', type: 'manages'},
+      {source: 'prime-minister', target: 'ministry-health', type: 'reports_to'},
+      {source: 'prime-minister', target: 'ministry-edu', type: 'reports_to'},
+      {source: 'prime-minister', target: 'ministry-finance', type: 'reports_to'},
+      {source: 'prime-minister', target: 'ministry-defense', type: 'reports_to'},
+      // IS_ATTRIBUTE relationships
+      {source: 'president', target: 'president-profile', type: 'IS_ATTRIBUTE'},
+      {source: 'ministry-health', target: 'health-budget', type: 'IS_ATTRIBUTE'},
+      {source: 'ministry-edu', target: 'education-stats', type: 'IS_ATTRIBUTE'},
+      {source: 'ministry-health', target: 'ministry-structure', type: 'IS_ATTRIBUTE'},
+      {source: 'dept-hospitals', target: 'hospital-data', type: 'IS_ATTRIBUTE'}
     ];
     
+    // Sample data content for attributes
+    const sampleData = {
+      'president-profile': {
+        type: 'document',
+        data: {
+          name: 'John Smith',
+          age: 55,
+          party: 'Democratic Party',
+          term_start: '2020-01-20',
+          term_end: '2024-01-20',
+          education: {
+            degree: 'PhD in Political Science',
+            university: 'Harvard University',
+            year: 1990
+          },
+          previous_positions: [
+            'Governor of California (2010-2018)',
+            'Senator (2004-2010)',
+            'Mayor of San Francisco (1998-2004)'
+          ],
+          family: {
+            spouse: 'Jane Smith',
+            children: 2
+          }
+        }
+      },
+      'health-budget': {
+        type: 'table',
+        data: {
+          columns: ['Year', 'Department', 'Budget (Million $)', 'Allocated', 'Spent', 'Remaining'],
+          rows: [
+            ['2023', 'Public Health', 150, 120, 115, 5],
+            ['2023', 'Hospital Management', 200, 180, 175, 5],
+            ['2023', 'Emergency Services', 75, 70, 68, 2],
+            ['2022', 'Public Health', 140, 135, 130, 5],
+            ['2022', 'Hospital Management', 190, 185, 180, 5],
+            ['2022', 'Emergency Services', 70, 65, 63, 2]
+          ]
+        }
+      },
+      'education-stats': {
+        type: 'table',
+        data: {
+          columns: ['District', 'Schools', 'Students', 'Teachers', 'Graduation Rate (%)', 'Test Scores (Avg)'],
+          rows: [
+            ['North District', 15, 4500, 300, 92, 85],
+            ['South District', 12, 3800, 250, 88, 82],
+            ['East District', 18, 5200, 350, 90, 87],
+            ['West District', 10, 3200, 200, 85, 80],
+            ['Central District', 20, 6000, 400, 95, 90]
+          ]
+        }
+      },
+      'ministry-structure': {
+        type: 'document',
+        data: {
+          ministry_name: 'Ministry of Health',
+          established: '1950',
+          headquarters: 'Washington DC',
+          departments: [
+            {
+              name: 'Public Health Department',
+              director: 'Dr. Sarah Johnson',
+              employees: 150,
+              responsibilities: ['Disease prevention', 'Health education', 'Vaccination programs']
+            },
+            {
+              name: 'Hospital Management',
+              director: 'Dr. Michael Brown',
+              employees: 200,
+              responsibilities: ['Hospital operations', 'Patient care', 'Medical equipment']
+            },
+            {
+              name: 'Emergency Services',
+              director: 'Dr. Emily Davis',
+              employees: 100,
+              responsibilities: ['Emergency response', 'Disaster management', 'Crisis coordination']
+            }
+          ],
+          budget: {
+            total: 500000000,
+            currency: 'USD',
+            fiscal_year: '2023'
+          }
+        }
+      },
+      'hospital-data': {
+        type: 'table',
+        data: {
+          columns: ['Hospital Name', 'Beds', 'Occupancy (%)', 'Patients/Day', 'Staff', 'Specialties'],
+          rows: [
+            ['City General Hospital', 500, 85, 1200, 800, 'Cardiology, Neurology, Surgery'],
+            ['Regional Medical Center', 300, 90, 800, 500, 'Oncology, Pediatrics, Emergency'],
+            ['Community Hospital', 150, 75, 400, 250, 'General Medicine, Maternity'],
+            ['Specialty Clinic', 50, 60, 200, 100, 'Cardiology, Orthopedics'],
+            ['Emergency Hospital', 200, 95, 600, 300, 'Emergency, Trauma, ICU']
+          ]
+        }
+      }
+    };
+
     setNodes(sampleNodes);
     setLinks(sampleLinks);
+    setNodeData(sampleData);
     setNodeIdCounter(sampleNodes.length);
   };
 
@@ -136,7 +257,8 @@ function App() {
       organization: '#10B981',
       department: '#F59E0B',
       project: '#8B5CF6',
-      document: '#EF4444'
+      document: '#EF4444',
+      table: '#06B6D4'
     };
     return colors[type] || '#6B7280';
   };
@@ -307,17 +429,29 @@ function App() {
           onRemoveFromFocus={removeFromFocus}
         />
         
-        <RightPanel 
-          selectedNode={selectedNode}
-          selectedLink={selectedLink}
-          onDeleteNode={deleteNode}
-          onDeleteLink={deleteLink}
-          getNodeConnections={getNodeConnections}
-          focusMode={focusMode}
-          focusedNodes={focusedNodes}
-          onAddToFocus={addToFocus}
-          onRemoveFromFocus={removeFromFocus}
-        />
+        <div className="flex flex-col w-80 border-l border-gray-700">
+          <RightPanel 
+            selectedNode={selectedNode}
+            selectedLink={selectedLink}
+            onDeleteNode={deleteNode}
+            onDeleteLink={deleteLink}
+            getNodeConnections={getNodeConnections}
+            focusMode={focusMode}
+            focusedNodes={focusedNodes}
+            onAddToFocus={addToFocus}
+            onRemoveFromFocus={removeFromFocus}
+          />
+          <div className="border-t border-gray-700 h-1/2">
+            <ErrorBoundary>
+              <DataViewer 
+                nodeData={nodeData}
+                selectedNode={selectedNode}
+                nodes={nodes}
+                links={links}
+              />
+            </ErrorBoundary>
+          </div>
+        </div>
       </div>
 
       {showAddNodeModal && (

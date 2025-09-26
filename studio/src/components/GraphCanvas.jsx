@@ -169,17 +169,28 @@ const GraphCanvas = ({
     const svg = d3.select(svgRef.current);
     const g = svg.select('.graph-group');
 
-    // All nodes and links passed to GraphCanvas are already filtered
-    // Just ensure they're visible and properly styled
+    // Update node styling including selection state
     g.selectAll('.node')
       .style('display', 'block')
       .style('opacity', 1)
-      .style('pointer-events', 'all');
+      .style('pointer-events', 'all')
+      .select('circle')
+      .attr('fill', d => getNodeColor(d.type))
+      .attr('stroke', d => {
+        if (focusedNodes.has(d.id)) return '#F59E0B';
+        if (selectedNode && d.id === selectedNode.id) return '#3B82F6';
+        return '#fff';
+      })
+      .attr('stroke-width', d => {
+        if (focusedNodes.has(d.id)) return 5;
+        if (selectedNode && d.id === selectedNode.id) return 4;
+        return 2;
+      });
     
     g.selectAll('.link')
       .style('display', 'block')
       .style('opacity', 0.8);
-  }, [nodes, links, focusMode, focusedNodes, searchQuery, activeFilters, currentMode]);
+  }, [nodes, links, focusMode, focusedNodes, searchQuery, activeFilters, currentMode, selectedNode, getNodeColor]);
 
   const zoomIn = () => {
     if (zoomRef.current) {
