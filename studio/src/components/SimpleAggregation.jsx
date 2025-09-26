@@ -3,7 +3,9 @@ import React, { useState, useEffect } from 'react';
 const SimpleAggregation = ({ selectedNode, nodes, links, onClose }) => {
   const [availableAttributes, setAvailableAttributes] = useState([]);
   const [selectedAttributes, setSelectedAttributes] = useState([]);
-  const [aggregationType, setAggregationType] = useState('sum');
+  const [allData, setAllData] = useState([]);
+  const [groupByColumn, setGroupByColumn] = useState('');
+  const [aggregationConfigs, setAggregationConfigs] = useState([]);
   const [results, setResults] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -54,35 +56,94 @@ const SimpleAggregation = ({ selectedNode, nodes, links, onClose }) => {
     }
   };
 
+  const addAggregationConfig = () => {
+    setAggregationConfigs([...aggregationConfigs, { column: '', operation: 'sum' }]);
+  };
+
+  const updateAggregationConfig = (index, field, value) => {
+    const newConfigs = [...aggregationConfigs];
+    newConfigs[index] = { ...newConfigs[index], [field]: value };
+    setAggregationConfigs(newConfigs);
+  };
+
+  const removeAggregationConfig = (index) => {
+    setAggregationConfigs(aggregationConfigs.filter((_, i) => i !== index));
+  };
+
+  const getAvailableColumns = () => {
+    if (allData.length === 0) return [];
+    if (!Array.isArray(allData[0])) return [];
+    return allData[0].slice(0, -2); // Exclude _source and _sourceId
+  };
+
   const performAggregation = async () => {
-    if (selectedAttributes.length === 0) return;
+    if (allData.length === 0 || !groupByColumn || aggregationConfigs.length === 0) {
+      setResults({ type: 'error', message: 'Please select data, group by column, and at least one aggregation' });
+      return;
+    }
 
     setLoading(true);
     try {
-      const allData = [];
-      
-      // Load data from all selected attributes
-      for (const attr of selectedAttributes) {
-        const data = await loadAttributeData(attr.id);
-        if (data && data.type === 'table' && data.rows) {
-          // Add source attribute info to each row
-          const enrichedRows = data.rows.map(row => ({
-            ...row,
-            _source: attr.name,
-            _sourceId: attr.id
-          }));
-          allData.push(...enrichedRows);
-        }
-      }
-
-      if (allData.length === 0) {
-        setResults({ type: 'error', message: 'No data available for aggregation' });
+      const groupByIndex = getAvailableColumns().indexOf(groupByColumn);
+      if (groupByIndex === -1) {
+        setResults({ type: 'error', message: 'Group by column not found in data' });
         return;
       }
 
-      // Perform aggregation
-      const aggregated = performCalculation(allData, aggregationType);
-      setResults({ type: 'success', data: aggregated, totalRows: allData.length });
+      // Group data by the selected column
+      const groups = {};
+      allData.forEach(row => {
+        const groupKey = row[groupByIndex];
+        if (!groups[groupKey]) {
+          groups[groupKey] = [];
+        }
+        groups[groupKey].push(row);
+      });
+
+      const results = [];
+      Object.entries(groups).forEach(([group, rows]) => {
+        const resultRow = [group];
+        
+        aggregationConfigs.forEach(config => {
+          const columnIndex = getAvailableColumns().indexOf(config.column);
+          if (columnIndex === -1) return;
+          
+          const values = rows.map(row => parseFloat(row[columnIndex]) || 0);
+          let result;
+          
+          switch (config.operation) {
+            case 'sum':
+              result = values.reduce((sum, val) => sum + val, 0);
+              break;
+            case 'avg':
+              result = values.reduce((sum, val) => sum + val, 0) / values.length;
+              break;
+            case 'max':
+              result = Math.max(...values);
+              break;
+            case 'min':
+              result = Math.min(...values);
+              break;
+            case 'count':
+              result = values.length;
+              break;
+            default:
+              result = values.reduce((sum, val) => sum + val, 0);
+          }
+          
+          resultRow.push(result.toFixed(2));
+        });
+        
+        results.push(resultRow);
+      });
+
+      setResults({ 
+        type: 'success', 
+        data: results.sort((a, b) => a[0] - b[0]), 
+        totalRows: allData.length,
+        groupByColumn,
+        aggregationConfigs
+      });
     } catch (error) {
       setResults({ type: 'error', message: error.message });
     } finally {
@@ -149,11 +210,49 @@ const SimpleAggregation = ({ selectedNode, nodes, links, onClose }) => {
     return results.sort((a, b) => a[0] - b[0]); // Sort by year
   };
 
-  const handleAttributeToggle = (attribute) => {
+  const handleAttributeToggle = async (attribute) => {
     if (selectedAttributes.find(attr => attr.id === attribute.id)) {
-      setSelectedAttributes(selectedAttributes.filter(attr => attr.id !== attribute.id));
+      const newSelected = selectedAttributes.filter(attr => attr.id !== attribute.id);
+      setSelectedAttributes(newSelected);
+      await loadAllData(newSelected);
     } else {
-      setSelectedAttributes([...selectedAttributes, attribute]);
+      const newSelected = [...selectedAttributes, attribute];
+      setSelectedAttributes(newSelected);
+      await loadAllData(newSelected);
+    }
+  };
+
+  const loadAllData = async (attributes) => {
+    if (attributes.length === 0) {
+      setAllData([]);
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const dataPromises = attributes.map(attr => loadAttributeData(attr.id));
+      const dataResults = await Promise.all(dataPromises);
+      
+      const combinedData = [];
+      dataResults.forEach((data, index) => {
+        if (data && data.type === 'table' && data.rows) {
+          // Add source attribute info to each row
+          const enrichedRows = data.rows.map(row => {
+            if (Array.isArray(row)) {
+              return [...row, attributes[index].name, attributes[index].id];
+            }
+            return row;
+          });
+          combinedData.push(...enrichedRows);
+        }
+      });
+      
+      console.log('Combined data structure:', combinedData);
+      setAllData(combinedData);
+    } catch (error) {
+      console.error('Error loading data:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -202,26 +301,82 @@ const SimpleAggregation = ({ selectedNode, nodes, links, onClose }) => {
           </div>
         </div>
 
-        {/* Aggregation Settings */}
-        <div>
-          <h3 className="text-md font-medium mb-3">Aggregation Type</h3>
-          <select
-            value={aggregationType}
-            onChange={(e) => setAggregationType(e.target.value)}
-            className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-sm"
-          >
-            <option value="sum">Sum</option>
-            <option value="avg">Average</option>
-            <option value="max">Maximum</option>
-            <option value="min">Minimum</option>
-            <option value="count">Count</option>
-          </select>
-        </div>
+        {/* Debug Info */}
+        {allData.length > 0 && (
+          <div className="text-xs text-gray-500 mb-2">
+            Loaded {allData.length} rows | Columns: {getAvailableColumns().length}
+          </div>
+        )}
+
+        {/* Group By Selection */}
+        {allData.length > 0 && (
+          <div>
+            <h3 className="text-md font-medium mb-3">Group By</h3>
+            <select
+              value={groupByColumn}
+              onChange={(e) => setGroupByColumn(e.target.value)}
+              className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-sm"
+            >
+              <option value="">Select column to group by...</option>
+              {getAvailableColumns().map((column, index) => (
+                <option key={index} value={column}>{column}</option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        {/* Aggregation Configurations */}
+        {allData.length > 0 && (
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-md font-medium">Aggregations</h3>
+              <button
+                onClick={addAggregationConfig}
+                className="text-sm bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded"
+              >
+                + Add Aggregation
+              </button>
+            </div>
+            <div className="space-y-2">
+              {aggregationConfigs.map((config, index) => (
+                <div key={index} className="flex items-center space-x-2 p-2 bg-gray-800 rounded">
+                  <select
+                    value={config.column}
+                    onChange={(e) => updateAggregationConfig(index, 'column', e.target.value)}
+                    className="flex-1 px-2 py-1 bg-gray-700 border border-gray-600 rounded text-sm"
+                  >
+                    <option value="">Select column...</option>
+                    {getAvailableColumns().map((column, colIndex) => (
+                      <option key={colIndex} value={column}>{column}</option>
+                    ))}
+                  </select>
+                  <select
+                    value={config.operation}
+                    onChange={(e) => updateAggregationConfig(index, 'operation', e.target.value)}
+                    className="px-2 py-1 bg-gray-700 border border-gray-600 rounded text-sm"
+                  >
+                    <option value="sum">Sum</option>
+                    <option value="avg">Average</option>
+                    <option value="max">Maximum</option>
+                    <option value="min">Minimum</option>
+                    <option value="count">Count</option>
+                  </select>
+                  <button
+                    onClick={() => removeAggregationConfig(index)}
+                    className="text-red-400 hover:text-red-300 px-2"
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Execute Button */}
         <button
           onClick={performAggregation}
-          disabled={selectedAttributes.length === 0 || loading}
+          disabled={allData.length === 0 || !groupByColumn || aggregationConfigs.length === 0 || loading}
           className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed py-2 rounded text-sm font-medium"
         >
           {loading ? 'Calculating...' : 'Perform Aggregation'}
@@ -236,21 +391,27 @@ const SimpleAggregation = ({ selectedNode, nodes, links, onClose }) => {
             ) : (
               <div className="bg-gray-800 rounded-lg border border-gray-600 p-4">
                 <div className="text-sm text-gray-400 mb-2">
-                  Total rows processed: {results.totalRows}
+                  Total rows processed: {results.totalRows} | Grouped by: {results.groupByColumn}
                 </div>
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="border-b border-gray-600">
-                        <th className="text-left py-2 px-3 text-gray-300">Year</th>
-                        <th className="text-left py-2 px-3 text-gray-300">Aggregated Value</th>
+                        <th className="text-left py-2 px-3 text-gray-300">{results.groupByColumn}</th>
+                        {results.aggregationConfigs.map((config, index) => (
+                          <th key={index} className="text-left py-2 px-3 text-gray-300">
+                            {config.operation.toUpperCase()}({config.column})
+                          </th>
+                        ))}
                       </tr>
                     </thead>
                     <tbody>
                       {results.data.map((row, index) => (
                         <tr key={index} className="border-b border-gray-700">
                           <td className="py-2 px-3 text-gray-300">{row[0]}</td>
-                          <td className="py-2 px-3 text-gray-300">{row[1]}</td>
+                          {row.slice(1).map((cell, cellIndex) => (
+                            <td key={cellIndex} className="py-2 px-3 text-gray-300">{cell}</td>
+                          ))}
                         </tr>
                       ))}
                     </tbody>

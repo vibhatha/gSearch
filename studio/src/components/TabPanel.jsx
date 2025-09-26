@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import DataViewer from './DataViewer.jsx';
 import RightPanel from './RightPanel.jsx';
-import AggregationPanel from './AggregationPanel.jsx';
+import SimpleAggregation from './SimpleAggregation.jsx';
 
 const TabPanel = ({ 
   selectedNode, 
@@ -22,6 +22,7 @@ const TabPanel = ({
   const tabs = [
     { id: 'properties', label: 'Properties', icon: '⚙️', tooltip: 'Node Properties' },
     { id: 'data', label: 'Data', icon: '📊', tooltip: 'Data & Aggregation' },
+    { id: 'aggregation', label: 'Aggregate', icon: '🧮', tooltip: 'Aggregation Tools' },
     { id: 'connections', label: 'Connections', icon: '🔗', tooltip: 'Node Connections' }
   ];
 
@@ -49,6 +50,26 @@ const TabPanel = ({
             nodes={nodes}
             links={links}
           />
+        );
+      
+      case 'aggregation':
+        return (
+          <div className="h-full flex flex-col">
+            <div className="p-4 border-b border-gray-700">
+              <h2 className="text-lg font-semibold">Aggregation Tools</h2>
+              <div className="text-sm text-gray-400">
+                {selectedNode ? `${selectedNode.name} - ${selectedNode.type}` : 'Select a node to perform aggregations'}
+              </div>
+            </div>
+            <div className="flex-1 overflow-y-auto">
+              <SimpleAggregation 
+                selectedNode={selectedNode}
+                nodes={nodes}
+                links={links}
+                onClose={() => {}}
+              />
+            </div>
+          </div>
         );
       
       case 'connections':

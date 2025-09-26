@@ -45,6 +45,7 @@ const DataViewer = ({ selectedNode, nodes, links }) => {
     };
 
     const attributes = getAttributes();
+    console.log('DataViewer: Found attributes for', selectedNode.name, ':', attributes);
     if (attributes.length > 0) {
       setData({ attributes });
       setSelectedAttribute(null);
@@ -207,9 +208,11 @@ const DataViewer = ({ selectedNode, nodes, links }) => {
   // Show data content for selected attribute
   return (
     <div className="h-full flex flex-col">
-      <div className="p-4 border-b border-gray-700">
+      <div className={`p-4 border-b ${showAggregation ? 'border-purple-500 bg-purple-900/20' : 'border-gray-700'}`}>
         <div className="flex items-center justify-between mb-2">
-          <h2 className="text-lg font-semibold">Data Viewer</h2>
+          <h2 className="text-lg font-semibold">
+            {showAggregation ? '🧮 Aggregation Mode' : 'Data Viewer'}
+          </h2>
           {selectedAttribute && (
             <button 
               onClick={() => {
@@ -245,13 +248,26 @@ const DataViewer = ({ selectedNode, nodes, links }) => {
           <div className="text-sm text-gray-400">
             {selectedAttribute ? selectedAttribute.name : selectedNode.name} - {selectedNode.type}
           </div>
-          {!selectedAttribute && data && data.attributes && data.attributes.length > 1 && (
-            <button 
-              onClick={() => setShowAggregation(!showAggregation)}
-              className="text-xs bg-purple-600 hover:bg-purple-700 px-2 py-1 rounded"
-            >
-              🧮 {showAggregation ? 'Hide' : 'Aggregate'} All
-            </button>
+          {!selectedAttribute && data && data.attributes && data.attributes.length > 0 && (
+            <div className="flex items-center space-x-2">
+              <span className="text-xs text-gray-500">
+                {data.attributes.length} attribute{data.attributes.length !== 1 ? 's' : ''}
+              </span>
+              <button 
+                onClick={() => {
+                  console.log('Aggregation button clicked, current state:', showAggregation);
+                  setShowAggregation(!showAggregation);
+                }}
+                className={`text-sm px-3 py-2 rounded font-medium ${
+                  data.attributes.length > 1 
+                    ? 'bg-purple-600 hover:bg-purple-700 text-white' 
+                    : 'bg-gray-600 hover:bg-gray-700 text-gray-300'
+                }`}
+                title={data.attributes.length > 1 ? 'Aggregate multiple attributes' : 'Only one attribute available'}
+              >
+                🧮 {showAggregation ? 'Hide Aggregation' : 'Show Aggregation'}
+              </button>
+            </div>
           )}
         </div>
       </div>
@@ -259,6 +275,7 @@ const DataViewer = ({ selectedNode, nodes, links }) => {
       <div className="flex-1 overflow-hidden flex flex-col">
         {showAggregation && !selectedAttribute ? (
           <div className="flex-1 overflow-y-auto">
+            {console.log('Rendering SimpleAggregation, showAggregation:', showAggregation, 'selectedAttribute:', selectedAttribute)}
             <SimpleAggregation 
               selectedNode={selectedNode}
               nodes={nodes}
@@ -266,7 +283,31 @@ const DataViewer = ({ selectedNode, nodes, links }) => {
               onClose={() => setShowAggregation(false)}
             />
           </div>
-        ) : data.type === 'table' && data.columns && data.rows ? (
+        ) : data && data.attributes ? (
+          <div className="flex-1 overflow-y-auto p-4">
+            <h3 className="text-lg font-semibold mb-4">Available Attributes</h3>
+            <div className="space-y-2">
+              {data.attributes.map((attr, index) => (
+                <div 
+                  key={attr.id}
+                  onClick={() => loadAttributeData(attr.id)}
+                  className="p-3 bg-gray-800 rounded-lg cursor-pointer hover:bg-gray-700 transition-colors"
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h4 className="font-medium text-white">{attr.name}</h4>
+                      <p className="text-sm text-gray-400">{attr.description}</p>
+                      <span className="text-xs text-gray-500 capitalize">{attr.type}</span>
+                    </div>
+                    <div className="text-gray-400">
+                      {attr.type === 'table' ? '📊' : '📄'}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : data && data.type === 'table' && data.columns && data.rows ? (
           <div className="flex-1 flex flex-col">
             {/* Table Controls */}
             <div className="p-4 border-b border-gray-700 bg-gray-800">
