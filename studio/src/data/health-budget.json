@@ -5,8 +5,26 @@
     ["2023", "Public Health", 150, 120, 115, 5],
     ["2023", "Hospital Management", 200, 180, 175, 5],
     ["2023", "Emergency Services", 75, 70, 68, 2],
+    ["2023", "Mental Health", 60, 55, 52, 3],
+    ["2023", "Research & Development", 40, 35, 32, 3],
+    ["2023", "Administration", 30, 25, 23, 2],
     ["2022", "Public Health", 140, 135, 130, 5],
     ["2022", "Hospital Management", 190, 185, 180, 5],
-    ["2022", "Emergency Services", 70, 65, 63, 2]
+    ["2022", "Emergency Services", 70, 65, 63, 2],
+    ["2022", "Mental Health", 55, 50, 48, 2],
+    ["2022", "Research & Development", 35, 30, 28, 2],
+    ["2022", "Administration", 25, 20, 18, 2],
+    ["2021", "Public Health", 130, 125, 120, 5],
+    ["2021", "Hospital Management", 180, 175, 170, 5],
+    ["2021", "Emergency Services", 65, 60, 58, 2],
+    ["2021", "Mental Health", 50, 45, 43, 2],
+    ["2021", "Research & Development", 30, 25, 23, 2],
+    ["2021", "Administration", 20, 15, 13, 2],
+    ["2020", "Public Health", 120, 115, 110, 5],
+    ["2020", "Hospital Management", 170, 165, 160, 5],
+    ["2020", "Emergency Services", 60, 55, 53, 2],
+    ["2020", "Mental Health", 45, 40, 38, 2],
+    ["2020", "Research & Development", 25, 20, 18, 2],
+    ["2020", "Administration", 15, 10, 8, 2]
   ]
 }
