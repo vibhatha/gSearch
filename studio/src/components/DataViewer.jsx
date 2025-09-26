@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import ColumnFilter from './ColumnFilter.jsx';
 import DataModal from './DataModal.jsx';
+import SimpleAggregation from './SimpleAggregation.jsx';
 
 const DataViewer = ({ selectedNode, nodes, links }) => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [selectedAttribute, setSelectedAttribute] = useState(null);
+  const [showAggregation, setShowAggregation] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedColumns, setSelectedColumns] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -55,13 +57,15 @@ const DataViewer = ({ selectedNode, nodes, links }) => {
   const loadAttributeData = async (attributeId) => {
     setLoading(true);
     try {
-      const dataMap = {
-        'president-profile': '/src/data/president-profile.json',
-        'health-budget': '/src/data/health-budget.json',
-        'education-stats': '/src/data/education-stats.json',
-        'ministry-structure': '/src/data/ministry-structure.json',
-        'hospital-data': '/src/data/hospital-data.json'
-      };
+        const dataMap = {
+          'president-profile': '/src/data/president-profile.json',
+          'health-budget': '/src/data/health-budget.json',
+          'education-stats': '/src/data/education-stats.json',
+          'ministry-structure': '/src/data/ministry-structure.json',
+          'hospital-data': '/src/data/hospital-data.json',
+          'education-budget': '/src/data/education-budget.json',
+          'defense-budget': '/src/data/defense-budget.json'
+        };
 
       const filePath = dataMap[attributeId];
       if (!filePath) {
@@ -237,13 +241,32 @@ const DataViewer = ({ selectedNode, nodes, links }) => {
             </button>
           )}
         </div>
-        <div className="text-sm text-gray-400">
-          {selectedAttribute ? selectedAttribute.name : selectedNode.name} - {selectedNode.type}
+        <div className="flex items-center justify-between">
+          <div className="text-sm text-gray-400">
+            {selectedAttribute ? selectedAttribute.name : selectedNode.name} - {selectedNode.type}
+          </div>
+          {!selectedAttribute && data && data.attributes && data.attributes.length > 1 && (
+            <button 
+              onClick={() => setShowAggregation(!showAggregation)}
+              className="text-xs bg-purple-600 hover:bg-purple-700 px-2 py-1 rounded"
+            >
+              🧮 {showAggregation ? 'Hide' : 'Aggregate'} All
+            </button>
+          )}
         </div>
       </div>
       
       <div className="flex-1 overflow-hidden flex flex-col">
-        {data.type === 'table' && data.columns && data.rows ? (
+        {showAggregation && !selectedAttribute ? (
+          <div className="flex-1 overflow-y-auto">
+            <SimpleAggregation 
+              selectedNode={selectedNode}
+              nodes={nodes}
+              links={links}
+              onClose={() => setShowAggregation(false)}
+            />
+          </div>
+        ) : data.type === 'table' && data.columns && data.rows ? (
           <div className="flex-1 flex flex-col">
             {/* Table Controls */}
             <div className="p-4 border-b border-gray-700 bg-gray-800">

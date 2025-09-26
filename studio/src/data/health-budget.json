@@ -25,6 +25,18 @@
     ["2020", "Emergency Services", 60, 55, 53, 2],
     ["2020", "Mental Health", 45, 40, 38, 2],
     ["2020", "Research & Development", 25, 20, 18, 2],
-    ["2020", "Administration", 15, 10, 8, 2]
+    ["2020", "Administration", 15, 10, 8, 2],
+    ["2023", "Digital Health", 25, 20, 18, 2],
+    ["2023", "Quality Assurance", 35, 30, 28, 2],
+    ["2023", "Training & Development", 20, 15, 13, 2],
+    ["2022", "Digital Health", 20, 18, 16, 2],
+    ["2022", "Quality Assurance", 30, 25, 23, 2],
+    ["2022", "Training & Development", 15, 12, 10, 2],
+    ["2021", "Digital Health", 18, 15, 13, 2],
+    ["2021", "Quality Assurance", 25, 20, 18, 2],
+    ["2021", "Training & Development", 12, 10, 8, 2],
+    ["2020", "Digital Health", 15, 12, 10, 2],
+    ["2020", "Quality Assurance", 20, 15, 13, 2],
+    ["2020", "Training & Development", 10, 8, 6, 2]
   ]
 }

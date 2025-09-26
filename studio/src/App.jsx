@@ -46,7 +46,9 @@ function App() {
       {id: 'health-budget', name: 'Health Budget', type: 'table', description: 'Annual health department budget'},
       {id: 'education-stats', name: 'Education Statistics', type: 'table', description: 'School enrollment and performance data'},
       {id: 'ministry-structure', name: 'Ministry Structure', type: 'document', description: 'Organizational structure document'},
-      {id: 'hospital-data', name: 'Hospital Data', type: 'table', description: 'Hospital capacity and patient statistics'}
+      {id: 'hospital-data', name: 'Hospital Data', type: 'table', description: 'Hospital capacity and patient statistics'},
+      {id: 'education-budget', name: 'Education Budget', type: 'table', description: 'Annual education department budget'},
+      {id: 'defense-budget', name: 'Defense Budget', type: 'table', description: 'Annual defense department budget'}
     ];
     
     const sampleLinks = [
@@ -66,7 +68,9 @@ function App() {
       {source: 'ministry-health', target: 'health-budget', type: 'IS_ATTRIBUTE'},
       {source: 'ministry-edu', target: 'education-stats', type: 'IS_ATTRIBUTE'},
       {source: 'ministry-health', target: 'ministry-structure', type: 'IS_ATTRIBUTE'},
-      {source: 'dept-hospitals', target: 'hospital-data', type: 'IS_ATTRIBUTE'}
+      {source: 'dept-hospitals', target: 'hospital-data', type: 'IS_ATTRIBUTE'},
+      {source: 'ministry-edu', target: 'education-budget', type: 'IS_ATTRIBUTE'},
+      {source: 'ministry-defense', target: 'defense-budget', type: 'IS_ATTRIBUTE'}
     ];
     
     setNodes(sampleNodes);
@@ -324,7 +328,7 @@ function App() {
           onRemoveFromFocus={removeFromFocus}
         />
         
-        <div className="w-80 border-l border-gray-700">
+        <div className="w-96 border-l border-gray-700">
           <TabPanel 
             selectedNode={selectedNode}
             selectedLink={selectedLink}

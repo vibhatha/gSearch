@@ -1,0 +1,30 @@
+{
+  "type": "table",
+  "columns": ["Year", "Department", "Budget (Million $)", "Allocated", "Spent", "Remaining"],
+  "rows": [
+    ["2023", "Primary Education", 200, 180, 175, 5],
+    ["2023", "Secondary Education", 150, 140, 135, 5],
+    ["2023", "Higher Education", 300, 280, 270, 10],
+    ["2023", "Special Education", 80, 70, 65, 5],
+    ["2023", "Teacher Training", 60, 55, 50, 5],
+    ["2023", "Infrastructure", 120, 110, 105, 5],
+    ["2022", "Primary Education", 180, 170, 165, 5],
+    ["2022", "Secondary Education", 140, 130, 125, 5],
+    ["2022", "Higher Education", 280, 270, 260, 10],
+    ["2022", "Special Education", 75, 65, 60, 5],
+    ["2022", "Teacher Training", 55, 50, 45, 5],
+    ["2022", "Infrastructure", 110, 100, 95, 5],
+    ["2021", "Primary Education", 160, 150, 145, 5],
+    ["2021", "Secondary Education", 130, 120, 115, 5],
+    ["2021", "Higher Education", 260, 250, 240, 10],
+    ["2021", "Special Education", 70, 60, 55, 5],
+    ["2021", "Teacher Training", 50, 45, 40, 5],
+    ["2021", "Infrastructure", 100, 90, 85, 5],
+    ["2020", "Primary Education", 150, 140, 135, 5],
+    ["2020", "Secondary Education", 120, 110, 105, 5],
+    ["2020", "Higher Education", 240, 230, 220, 10],
+    ["2020", "Special Education", 65, 55, 50, 5],
+    ["2020", "Teacher Training", 45, 40, 35, 5],
+    ["2020", "Infrastructure", 90, 80, 75, 5]
+  ]
+}

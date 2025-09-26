@@ -1,0 +1,30 @@
+{
+  "type": "table",
+  "columns": ["Year", "Department", "Budget (Million $)", "Allocated", "Spent", "Remaining"],
+  "rows": [
+    ["2023", "Army Operations", 400, 380, 370, 10],
+    ["2023", "Navy Operations", 350, 330, 320, 10],
+    ["2023", "Air Force", 300, 280, 270, 10],
+    ["2023", "Cybersecurity", 100, 90, 85, 5],
+    ["2023", "Research & Development", 150, 140, 135, 5],
+    ["2023", "Personnel", 200, 190, 185, 5],
+    ["2022", "Army Operations", 380, 360, 350, 10],
+    ["2022", "Navy Operations", 330, 310, 300, 10],
+    ["2022", "Air Force", 280, 260, 250, 10],
+    ["2022", "Cybersecurity", 90, 80, 75, 5],
+    ["2022", "Research & Development", 140, 130, 125, 5],
+    ["2022", "Personnel", 190, 180, 175, 5],
+    ["2021", "Army Operations", 360, 340, 330, 10],
+    ["2021", "Navy Operations", 310, 290, 280, 10],
+    ["2021", "Air Force", 260, 240, 230, 10],
+    ["2021", "Cybersecurity", 80, 70, 65, 5],
+    ["2021", "Research & Development", 130, 120, 115, 5],
+    ["2021", "Personnel", 180, 170, 165, 5],
+    ["2020", "Army Operations", 340, 320, 310, 10],
+    ["2020", "Navy Operations", 290, 270, 260, 10],
+    ["2020", "Air Force", 240, 220, 210, 10],
+    ["2020", "Cybersecurity", 70, 60, 55, 5],
+    ["2020", "Research & Development", 120, 110, 105, 5],
+    ["2020", "Personnel", 170, 160, 155, 5]
+  ]
+}

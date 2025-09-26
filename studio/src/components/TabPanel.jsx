@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import DataViewer from './DataViewer.jsx';
 import RightPanel from './RightPanel.jsx';
+import AggregationPanel from './AggregationPanel.jsx';
 
 const TabPanel = ({ 
   selectedNode, 
@@ -16,11 +17,12 @@ const TabPanel = ({
   onRemoveFromFocus
 }) => {
   const [activeTab, setActiveTab] = useState('properties');
+  const [showAggregation, setShowAggregation] = useState(false);
 
   const tabs = [
-    { id: 'properties', label: 'Properties', icon: '⚙️' },
-    { id: 'data', label: 'Data', icon: '📊' },
-    { id: 'connections', label: 'Connections', icon: '🔗' }
+    { id: 'properties', label: 'Properties', icon: '⚙️', tooltip: 'Node Properties' },
+    { id: 'data', label: 'Data', icon: '📊', tooltip: 'Data & Aggregation' },
+    { id: 'connections', label: 'Connections', icon: '🔗', tooltip: 'Node Connections' }
   ];
 
   const renderTabContent = () => {
@@ -89,28 +91,34 @@ const TabPanel = ({
   };
 
   return (
-    <div className="h-full flex flex-col">
-      {/* Tab Navigation */}
-      <div className="flex border-b border-gray-700 bg-gray-800">
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
-              activeTab === tab.id
-                ? 'text-blue-400 border-b-2 border-blue-400 bg-gray-700'
-                : 'text-gray-400 hover:text-gray-300 hover:bg-gray-700'
-            }`}
-          >
-            <span className="mr-2">{tab.icon}</span>
-            {tab.label}
-          </button>
-        ))}
-      </div>
-      
+    <div className="h-full flex">
       {/* Tab Content */}
       <div className="flex-1 overflow-hidden">
         {renderTabContent()}
+      </div>
+      
+      {/* Vertical Tab Navigation - Rightmost */}
+      <div className="w-12 bg-gray-800 border-l border-gray-700 flex flex-col">
+        {tabs.map((tab) => (
+          <div key={tab.id} className="relative group">
+            <button
+              onClick={() => setActiveTab(tab.id)}
+              className={`w-full h-12 flex items-center justify-center text-lg transition-colors ${
+                activeTab === tab.id
+                  ? 'text-blue-400 bg-gray-700 border-l-2 border-blue-400'
+                  : 'text-gray-400 hover:text-gray-300 hover:bg-gray-700'
+              }`}
+              title={tab.tooltip}
+            >
+              {tab.icon}
+            </button>
+            
+            {/* Tooltip - Positioned to the left */}
+            <div className="absolute right-12 top-1/2 transform -translate-y-1/2 bg-gray-900 text-white text-xs px-2 py-1 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50 whitespace-nowrap">
+              {tab.tooltip}
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
