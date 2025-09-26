@@ -208,7 +208,29 @@ const DataViewer = ({ selectedNode, nodes, links }) => {
           <h2 className="text-lg font-semibold">Data Viewer</h2>
           {selectedAttribute && (
             <button 
-              onClick={() => setSelectedAttribute(null)}
+              onClick={() => {
+                setSelectedAttribute(null);
+                // Reset to show attribute list
+                const getAttributes = () => {
+                  if (!links || !nodes) return [];
+                  
+                  const attributeIds = [];
+                  for (const link of links) {
+                    const sourceId = typeof link.source === 'object' ? link.source.id : link.source;
+                    if (sourceId === selectedNode.id && link.type === 'IS_ATTRIBUTE') {
+                      const targetId = typeof link.target === 'object' ? link.target.id : link.target;
+                      attributeIds.push(targetId);
+                    }
+                  }
+                  
+                  return attributeIds.map(id => nodes.find(n => n.id === id)).filter(Boolean);
+                };
+                
+                const attributes = getAttributes();
+                if (attributes.length > 0) {
+                  setData({ attributes });
+                }
+              }}
               className="text-sm text-gray-400 hover:text-gray-300"
             >
               ← Back to attributes
