@@ -1,0 +1,12 @@
+{
+  "type": "table",
+  "columns": ["Year", "Department", "Budget (Million $)", "Allocated", "Spent", "Remaining"],
+  "rows": [
+    ["2023", "Public Health", 150, 120, 115, 5],
+    ["2023", "Hospital Management", 200, 180, 175, 5],
+    ["2023", "Emergency Services", 75, 70, 68, 2],
+    ["2022", "Public Health", 140, 135, 130, 5],
+    ["2022", "Hospital Management", 190, 185, 180, 5],
+    ["2022", "Emergency Services", 70, 65, 63, 2]
+  ]
+}

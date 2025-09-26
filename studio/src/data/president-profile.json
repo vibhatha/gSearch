@@ -1,0 +1,21 @@
+{
+  "name": "John Smith",
+  "age": 55,
+  "party": "Democratic Party",
+  "term_start": "2020-01-20",
+  "term_end": "2024-01-20",
+  "education": {
+    "degree": "PhD in Political Science",
+    "university": "Harvard University",
+    "year": 1990
+  },
+  "previous_positions": [
+    "Governor of California (2010-2018)",
+    "Senator (2004-2010)",
+    "Mayor of San Francisco (1998-2004)"
+  ],
+  "family": {
+    "spouse": "Jane Smith",
+    "children": 2
+  }
+}

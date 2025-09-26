@@ -1,0 +1,30 @@
+{
+  "ministry_name": "Ministry of Health",
+  "established": "1950",
+  "headquarters": "Washington DC",
+  "departments": [
+    {
+      "name": "Public Health Department",
+      "director": "Dr. Sarah Johnson",
+      "employees": 150,
+      "responsibilities": ["Disease prevention", "Health education", "Vaccination programs"]
+    },
+    {
+      "name": "Hospital Management",
+      "director": "Dr. Michael Brown",
+      "employees": 200,
+      "responsibilities": ["Hospital operations", "Patient care", "Medical equipment"]
+    },
+    {
+      "name": "Emergency Services",
+      "director": "Dr. Emily Davis",
+      "employees": 100,
+      "responsibilities": ["Emergency response", "Disaster management", "Crisis coordination"]
+    }
+  ],
+  "budget": {
+    "total": 500000000,
+    "currency": "USD",
+    "fiscal_year": "2023"
+  }
+}

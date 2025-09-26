@@ -1,0 +1,11 @@
+{
+  "type": "table",
+  "columns": ["Hospital Name", "Beds", "Occupancy (%)", "Patients/Day", "Staff", "Specialties"],
+  "rows": [
+    ["City General Hospital", 500, 85, 1200, 800, "Cardiology, Neurology, Surgery"],
+    ["Regional Medical Center", 300, 90, 800, 500, "Oncology, Pediatrics, Emergency"],
+    ["Community Hospital", 150, 75, 400, 250, "General Medicine, Maternity"],
+    ["Specialty Clinic", 50, 60, 200, 100, "Cardiology, Orthopedics"],
+    ["Emergency Hospital", 200, 95, 600, 300, "Emergency, Trauma, ICU"]
+  ]
+}
