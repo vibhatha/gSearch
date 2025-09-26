@@ -5,7 +5,11 @@ const RightPanel = ({
   selectedLink, 
   onDeleteNode, 
   onDeleteLink, 
-  getNodeConnections 
+  getNodeConnections,
+  focusMode,
+  focusedNodes,
+  onAddToFocus,
+  onRemoveFromFocus
 }) => {
   const renderNodeProperties = (node) => (
     <div className="space-y-4">
@@ -23,7 +27,25 @@ const RightPanel = ({
         <label className="block text-sm font-medium text-gray-300 mb-1">Connections</label>
         <p className="text-sm text-gray-400">{getNodeConnections(node)} connections</p>
       </div>
-      <div className="pt-4 border-t border-gray-700">
+      <div className="pt-4 border-t border-gray-700 space-y-2">
+        {/* Focus controls available in both Create and Query modes */}
+        {focusedNodes.has(node.id) ? (
+          <button 
+            onClick={() => onRemoveFromFocus(node.id)}
+            className="w-full bg-orange-600 hover:bg-orange-700 py-2 rounded text-sm"
+          >
+            <i className="fa-solid fa-times mr-1"></i>
+            Remove from Focus
+          </button>
+        ) : (
+          <button 
+            onClick={() => onAddToFocus(node)}
+            className="w-full bg-yellow-600 hover:bg-yellow-700 py-2 rounded text-sm"
+          >
+            <i className="fa-solid fa-crosshairs mr-1"></i>
+            Add to Focus
+          </button>
+        )}
         <button 
           onClick={() => onDeleteNode(node.id)}
           className="w-full bg-red-600 hover:bg-red-700 py-2 rounded text-sm"
@@ -73,8 +95,19 @@ const RightPanel = ({
 
   const renderEmptyState = () => (
     <div className="text-center text-gray-400 mt-8">
-      <i className="fa-solid fa-mouse-pointer text-3xl mb-3"></i>
-      <p>Select a node or connection to view properties</p>
+      {focusMode ? (
+        <>
+          <i className="fa-solid fa-crosshairs text-3xl mb-3 text-yellow-400"></i>
+          <p className="text-yellow-400 font-medium">Focus Mode Active</p>
+          <p className="text-sm mt-2">Focusing on {focusedNodes.size} node{focusedNodes.size !== 1 ? 's' : ''}</p>
+          <p className="text-xs mt-1">Only closely related entities are visible</p>
+        </>
+      ) : (
+        <>
+          <i className="fa-solid fa-mouse-pointer text-3xl mb-3"></i>
+          <p>Select a node or connection to view properties</p>
+        </>
+      )}
     </div>
   );
 

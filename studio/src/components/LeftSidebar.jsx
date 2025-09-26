@@ -6,7 +6,9 @@ const LeftSidebar = ({
   links, 
   activeFilters, 
   onFilterChange, 
-  onClearFilters 
+  onClearFilters,
+  searchQuery,
+  filteredNodes
 }) => {
   const nodeTypes = [...new Set(nodes.map(n => n.type))];
   const relationshipTypes = [...new Set(links.map(l => l.type))];
@@ -20,6 +22,9 @@ const LeftSidebar = ({
   };
 
   const getVisibleNodes = () => {
+    if (searchQuery.trim()) {
+      return filteredNodes.length;
+    }
     if (currentMode === 'create' || activeFilters.nodeTypes.size === 0) {
       return nodes.length;
     }
@@ -27,6 +32,14 @@ const LeftSidebar = ({
   };
 
   const getVisibleLinks = () => {
+    if (searchQuery.trim()) {
+      const visibleNodeIds = new Set(filteredNodes.map(n => n.id));
+      return links.filter(l => {
+        const sourceId = typeof l.source === 'object' ? l.source.id : l.source;
+        const targetId = typeof l.target === 'object' ? l.target.id : l.target;
+        return visibleNodeIds.has(sourceId) && visibleNodeIds.has(targetId);
+      }).length;
+    }
     if (currentMode === 'create' || activeFilters.nodeTypes.size === 0) {
       return links.length;
     }
@@ -68,16 +81,32 @@ const LeftSidebar = ({
               </div>
             </div>
             
-            <div className="p-4 border-t border-gray-700">
-              <h3 className="text-sm font-medium text-gray-300 mb-2">Recent Nodes</h3>
-              <div className="space-y-1">
-                {nodes.slice(-5).map(node => (
-                  <div key={node.id} className="text-sm text-gray-300 truncate">
-                    {node.name}
-                  </div>
-                ))}
+            {searchQuery.trim() ? (
+              <div className="p-4 border-t border-gray-700">
+                <h3 className="text-sm font-medium text-gray-300 mb-2">Search Results</h3>
+                <div className="space-y-1">
+                  {filteredNodes.map(node => (
+                    <div key={node.id} className="text-sm text-gray-300 truncate">
+                      {node.name}
+                    </div>
+                  ))}
+                  {filteredNodes.length === 0 && (
+                    <div className="text-sm text-gray-500">No nodes found</div>
+                  )}
+                </div>
               </div>
-            </div>
+            ) : (
+              <div className="p-4 border-t border-gray-700">
+                <h3 className="text-sm font-medium text-gray-300 mb-2">Recent Nodes</h3>
+                <div className="space-y-1">
+                  {nodes.slice(-5).map(node => (
+                    <div key={node.id} className="text-sm text-gray-300 truncate">
+                      {node.name}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       ) : (

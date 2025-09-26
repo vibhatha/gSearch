@@ -18,6 +18,9 @@ function App() {
     nodeTypes: new Set(),
     relationshipTypes: new Set()
   });
+  const [searchQuery, setSearchQuery] = useState('');
+  const [focusMode, setFocusMode] = useState(false);
+  const [focusedNodes, setFocusedNodes] = useState(new Set()); // Track multiple focused nodes
   const [nodeIdCounter, setNodeIdCounter] = useState(0);
   const [showAddNodeModal, setShowAddNodeModal] = useState(false);
   const [showAddLinkModal, setShowAddLinkModal] = useState(false);
@@ -157,6 +160,104 @@ function App() {
     });
   };
 
+  const handleSearch = (query) => {
+    setSearchQuery(query);
+  };
+
+  const clearSearch = () => {
+    setSearchQuery('');
+  };
+
+  const addToFocus = (node) => {
+    setFocusedNodes(prev => new Set([...prev, node.id]));
+    setFocusMode(true);
+    // Don't clear search or query filters - let them work additively with focus
+  };
+
+  const removeFromFocus = (nodeId) => {
+    setFocusedNodes(prev => {
+      const newSet = new Set(prev);
+      newSet.delete(nodeId);
+      if (newSet.size === 0) {
+        setFocusMode(false);
+      }
+      return newSet;
+    });
+  };
+
+  const clearFocus = () => {
+    setFocusMode(false);
+    setFocusedNodes(new Set());
+  };
+
+  // Filter nodes based on search query, focus mode, or query filters
+  const getFilteredNodes = () => {
+    let filteredNodes = nodes;
+    
+    // Apply search filter first (if active)
+    if (searchQuery.trim()) {
+      filteredNodes = filteredNodes.filter(node => 
+        node.name.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+    
+    // Apply query mode filters (if in query mode and filters are active)
+    if (currentMode === 'query' && activeFilters.nodeTypes.size > 0) {
+      filteredNodes = filteredNodes.filter(node => activeFilters.nodeTypes.has(node.type));
+    }
+    
+    // Apply focus mode additively (if active)
+    if (focusMode && focusedNodes.size > 0) {
+      // Get connections of focused nodes
+      const connectedNodeIds = new Set();
+      links.forEach(link => {
+        const sourceId = typeof link.source === 'object' ? link.source.id : link.source;
+        const targetId = typeof link.target === 'object' ? link.target.id : link.target;
+        if (focusedNodes.has(sourceId)) {
+          connectedNodeIds.add(targetId);
+        }
+        if (focusedNodes.has(targetId)) {
+          connectedNodeIds.add(sourceId);
+        }
+      });
+      
+      // Combine previously filtered nodes with focused nodes and their connections
+      const focusedAndConnected = new Set([
+        ...focusedNodes,
+        ...connectedNodeIds
+      ]);
+      
+      // Keep nodes that are either in the previous filter results OR in the focus set
+      const filteredNodeIds = new Set(filteredNodes.map(n => n.id));
+      return nodes.filter(node => 
+        filteredNodeIds.has(node.id) || focusedAndConnected.has(node.id)
+      );
+    }
+    
+    return filteredNodes;
+  };
+
+  // Filter links based on visible nodes
+  const getFilteredLinks = () => {
+    const visibleNodes = getFilteredNodes();
+    const visibleNodeIds = new Set(visibleNodes.map(n => n.id));
+    
+    return links.filter(link => {
+      const sourceId = typeof link.source === 'object' ? link.source.id : link.source;
+      const targetId = typeof link.target === 'object' ? link.target.id : link.target;
+      
+      // Check if both source and target are visible
+      const bothNodesVisible = visibleNodeIds.has(sourceId) && visibleNodeIds.has(targetId);
+      
+      // In query mode, also check relationship type filters
+      if (currentMode === 'query' && activeFilters.relationshipTypes.size > 0) {
+        return bothNodesVisible && activeFilters.relationshipTypes.has(link.type);
+      }
+      
+      return bothNodesVisible;
+    });
+  };
+
   return (
     <div className="bg-gray-900 text-white overflow-hidden h-screen flex flex-col">
       <Header 
@@ -169,6 +270,12 @@ function App() {
           setSelectedNode(null);
           setSelectedLink(null);
         }}
+        searchQuery={searchQuery}
+        onSearch={handleSearch}
+        onClearSearch={clearSearch}
+        focusMode={focusMode}
+        focusedNodes={focusedNodes}
+        onClearFocus={clearFocus}
       />
       
       <div className="flex flex-1">
@@ -179,11 +286,13 @@ function App() {
           activeFilters={activeFilters}
           onFilterChange={updateFilters}
           onClearFilters={clearAllFilters}
+          searchQuery={searchQuery}
+          filteredNodes={getFilteredNodes()}
         />
         
         <GraphCanvas 
-          nodes={nodes}
-          links={links}
+          nodes={getFilteredNodes()}
+          links={getFilteredLinks()}
           selectedNode={selectedNode}
           selectedLink={selectedLink}
           onNodeSelect={selectNode}
@@ -191,6 +300,11 @@ function App() {
           getNodeColor={getNodeColor}
           activeFilters={activeFilters}
           currentMode={currentMode}
+          searchQuery={searchQuery}
+          focusMode={focusMode}
+          focusedNodes={focusedNodes}
+          onAddToFocus={addToFocus}
+          onRemoveFromFocus={removeFromFocus}
         />
         
         <RightPanel 
@@ -199,6 +313,10 @@ function App() {
           onDeleteNode={deleteNode}
           onDeleteLink={deleteLink}
           getNodeConnections={getNodeConnections}
+          focusMode={focusMode}
+          focusedNodes={focusedNodes}
+          onAddToFocus={addToFocus}
+          onRemoveFromFocus={removeFromFocus}
         />
       </div>
 

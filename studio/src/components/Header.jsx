@@ -6,7 +6,13 @@ const Header = ({
   onAddNode, 
   onAddLink, 
   onSave, 
-  onReset 
+  onReset,
+  searchQuery,
+  onSearch,
+  onClearSearch,
+  focusMode,
+  focusedNodes,
+  onClearFocus
 }) => {
   return (
     <header className="bg-gray-800 border-b border-gray-700 px-6 py-3 flex items-center justify-between">
@@ -41,7 +47,7 @@ const Header = ({
         </div>
         
         {/* Create Mode Tools */}
-        {currentMode === 'create' && (
+        {currentMode === 'create' && !focusMode && (
           <div className="flex items-center space-x-2">
             <button 
               onClick={onAddNode}
@@ -59,6 +65,33 @@ const Header = ({
             </button>
           </div>
         )}
+
+        {/* Query Mode Tools */}
+        {currentMode === 'query' && !focusMode && (
+          <div className="flex items-center space-x-2">
+            <div className="text-sm text-gray-300">
+              <i className="fa-solid fa-filter mr-1"></i>
+              <span>Use filters to explore the graph</span>
+            </div>
+          </div>
+        )}
+
+        {/* Focus Mode Indicator */}
+        {focusMode && (
+          <div className="flex items-center space-x-2">
+            <div className="bg-yellow-600 text-white px-3 py-1.5 rounded text-sm flex items-center space-x-1">
+              <i className="fa-solid fa-crosshairs"></i>
+              <span>Focus: {focusedNodes.size} node{focusedNodes.size !== 1 ? 's' : ''} ({currentMode === 'create' ? 'Create' : 'Query'} mode)</span>
+            </div>
+            <button 
+              onClick={onClearFocus}
+              className="bg-gray-600 hover:bg-gray-700 px-3 py-1.5 rounded text-sm flex items-center space-x-1"
+            >
+              <i className="fa-solid fa-times"></i>
+              <span>Clear Focus</span>
+            </button>
+          </div>
+        )}
       </div>
       
       <div className="flex items-center space-x-4">
@@ -66,9 +99,23 @@ const Header = ({
           <input 
             type="text" 
             placeholder="Search nodes..." 
-            className="bg-gray-700 text-white px-3 py-1.5 rounded-lg text-sm w-64 pl-8"
+            value={searchQuery}
+            onChange={(e) => onSearch(e.target.value)}
+            className={`bg-gray-700 text-white px-3 py-1.5 rounded-lg text-sm w-64 pl-8 pr-8 ${
+              searchQuery ? 'ring-2 ring-blue-500' : ''
+            }`}
           />
-          <i className="fa-solid fa-search absolute left-2.5 top-2 text-gray-400 text-sm"></i>
+          <i className={`fa-solid fa-search absolute left-2.5 top-2 text-sm ${
+            searchQuery ? 'text-blue-400' : 'text-gray-400'
+          }`}></i>
+          {searchQuery && (
+            <button
+              onClick={onClearSearch}
+              className="absolute right-2.5 top-2 text-gray-400 hover:text-white text-sm"
+            >
+              <i className="fa-solid fa-times"></i>
+            </button>
+          )}
         </div>
         <button 
           onClick={onReset}

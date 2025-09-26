@@ -10,7 +10,12 @@ const GraphCanvas = ({
   onLinkSelect, 
   getNodeColor, 
   activeFilters, 
-  currentMode 
+  currentMode,
+  searchQuery,
+  focusMode,
+  focusedNodes,
+  onAddToFocus,
+  onRemoveFromFocus
 }) => {
   const svgRef = useRef();
   const containerRef = useRef();
@@ -91,14 +96,26 @@ const GraphCanvas = ({
       .on('click', (event, d) => {
         event.stopPropagation();
         onNodeSelect(d);
+      })
+      .on('dblclick', (event, d) => {
+        event.stopPropagation();
+        onAddToFocus(d);
       });
 
     // Add circles to nodes
     node.append('circle')
-      .attr('r', 20)
+      .attr('r', d => focusedNodes.has(d.id) ? 25 : 20)
       .attr('fill', d => getNodeColor(d.type))
-      .attr('stroke', d => d === selectedNode ? '#F59E0B' : '#fff')
-      .attr('stroke-width', d => d === selectedNode ? 4 : 2);
+      .attr('stroke', d => {
+        if (focusedNodes.has(d.id)) return '#F59E0B';
+        if (d === selectedNode) return '#3B82F6';
+        return '#fff';
+      })
+      .attr('stroke-width', d => {
+        if (focusedNodes.has(d.id)) return 5;
+        if (d === selectedNode) return 4;
+        return 2;
+      });
 
     // Add text to nodes
     node.append('text')
@@ -145,34 +162,24 @@ const GraphCanvas = ({
     };
   }, [nodes, links, dimensions, getNodeColor, selectedNode, onNodeSelect, onLinkSelect]);
 
-  // Apply filters
+  // Apply visual styling - data is already filtered at App level
   useEffect(() => {
-    if (currentMode !== 'query' || !svgRef.current) return;
+    if (!svgRef.current) return;
 
     const svg = d3.select(svgRef.current);
     const g = svg.select('.graph-group');
 
-    // Filter nodes
+    // All nodes and links passed to GraphCanvas are already filtered
+    // Just ensure they're visible and properly styled
     g.selectAll('.node')
-      .style('opacity', d => {
-        if (activeFilters.nodeTypes.size === 0) return 1;
-        return activeFilters.nodeTypes.has(d.type) ? 1 : 0.1;
-      })
-      .style('pointer-events', d => {
-        if (activeFilters.nodeTypes.size === 0) return 'all';
-        return activeFilters.nodeTypes.has(d.type) ? 'all' : 'none';
-      });
-
-    // Filter links
+      .style('display', 'block')
+      .style('opacity', 1)
+      .style('pointer-events', 'all');
+    
     g.selectAll('.link')
-      .style('opacity', d => {
-        if (activeFilters.nodeTypes.size === 0) return 0.8;
-        const sourceType = typeof d.source === 'object' ? d.source.type : nodes.find(n => n.id === d.source)?.type;
-        const targetType = typeof d.target === 'object' ? d.target.type : nodes.find(n => n.id === d.target)?.type;
-        const relationshipVisible = activeFilters.relationshipTypes.size === 0 || activeFilters.relationshipTypes.has(d.type);
-        return (activeFilters.nodeTypes.has(sourceType) && activeFilters.nodeTypes.has(targetType) && relationshipVisible) ? 0.8 : 0.1;
-      });
-  }, [activeFilters, currentMode, nodes]);
+      .style('display', 'block')
+      .style('opacity', 0.8);
+  }, [nodes, links, focusMode, focusedNodes, searchQuery, activeFilters, currentMode]);
 
   const zoomIn = () => {
     if (zoomRef.current) {

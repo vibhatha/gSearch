@@ -26,7 +26,27 @@ A powerful React-based graph visualization tool for creating, managing, and expl
 - **Filter by node type** to focus on specific categories
 - **Filter by relationship type** to explore specific connections
 - **Real-time filtering** with instant visual updates
+- **Complete hiding** of non-matching nodes and links (not just transparency)
 - **Query statistics** showing visible nodes and links
+
+### 🔎 Search Functionality
+- **Search nodes by name** with real-time filtering
+- **Case-insensitive search** for easy node discovery
+- **Complete hiding** of non-matching nodes and links
+- **Visual search indicators** with highlighted search input
+- **Clear search** with one-click reset
+- **Search results display** in the sidebar
+
+### 🎯 Additive Focus Mode
+- **Available in both Create and Query modes** - focus functionality works everywhere
+- **Progressive exploration** - double-click nodes to add them to focus
+- **Additive focus** - keeps previously focused nodes while adding new ones
+- **Works with existing filters** - focus mode preserves search and query filters
+- **Complete hiding** of non-focused nodes and links
+- **Visual focus indicators** with highlighted focused nodes
+- **Individual focus controls** - add/remove nodes from focus individually
+- **Smart filtering** - shows all focused nodes and their connections
+- **Focus history tracking** - maintain multiple focused nodes simultaneously
 
 ### 🎛️ User Interface
 - **Dual-mode interface** (Create/Query modes)
@@ -102,6 +122,23 @@ This serves the production build locally for testing.
 3. Use the **Relationship filters** to focus on specific connection types
 4. View **Query Results** statistics in the sidebar
 5. Use **"Clear All Filters"** to reset the view
+
+### Searching Nodes
+1. **Type in the search box** in the top-right corner
+2. **View filtered results** - only matching nodes and their connections will be visible
+3. **See search results** in the left sidebar under "Search Results"
+4. **Clear search** by clicking the X button or clearing the input
+5. **Search is case-insensitive** - type any part of the node name
+
+### Additive Focus Mode
+1. **Works in both Create and Query modes** - focus functionality is always available
+2. **Double-click any node** to add it to focus (keeps previously focused nodes)
+3. **Progressive exploration** - continue double-clicking to add more nodes
+4. **Preserves existing filters** - focus works additively with search and query filters
+5. **View all focused nodes and their connections** - additive filtering
+6. **Individual control** - use "Add to Focus" / "Remove from Focus" buttons in properties
+7. **Clear all focus** by clicking "Clear Focus" in the header
+8. **Visual feedback** - focused nodes are larger with orange borders
 
 ### Navigation
 - **Drag nodes** to reposition them
