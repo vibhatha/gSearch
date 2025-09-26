@@ -1,0 +1,62 @@
+/* App-specific styles */
+.highlighted-section {
+  outline: 2px solid #3F20FB;
+  background-color: rgba(63, 32, 251, 0.1);
+}
+
+.edit-button {
+  position: absolute;
+  z-index: 1000;
+}
+
+/* D3 graph styles */
+.node circle {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.node circle:hover {
+  stroke-width: 3px;
+}
+
+.link {
+  stroke: #4B5563;
+  stroke-width: 2;
+  stroke-opacity: 0.8;
+  cursor: pointer;
+}
+
+.link:hover {
+  stroke-width: 3;
+  stroke-opacity: 1;
+}
+
+.node text {
+  pointer-events: none;
+  font-size: 10px;
+  fill: white;
+  text-anchor: middle;
+}
+
+/* Modal styles */
+.modal-overlay {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+/* Custom scrollbar for webkit browsers */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #374151;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #6B7280;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #9CA3AF;
+}
