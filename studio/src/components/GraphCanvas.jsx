@@ -214,12 +214,6 @@ const GraphCanvas = ({
           <g className="graph-group"></g>
         </svg>
         
-        {/* Mini-map */}
-        <div className="absolute bottom-4 right-4 w-48 h-32 bg-gray-800 border border-gray-600 rounded-lg overflow-hidden">
-          <svg className="w-full h-full">
-            {/* Mini-map content would go here */}
-          </svg>
-        </div>
         
         {/* Canvas Controls */}
         <div className="absolute top-4 right-4 flex flex-col space-y-2">
